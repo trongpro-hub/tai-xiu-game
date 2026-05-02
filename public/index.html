@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tài Xỉu Siêu Cấp Vip Pro</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; user-select: none; -webkit-user-select: none; }
+    body { min-height: 100vh; background: linear-gradient(to right, #24243e, #302b63, #0f0c29); color: #fff; overflow-x: hidden; }
+    .live-feed { position: fixed; top: 0; left: 0; right: 0; padding: 8px 12px; background: rgba(0,0,0,.55); font-size: 12px; white-space: nowrap; overflow: hidden; z-index: 20; }
+    .btn-round { position: fixed; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 30; border: 2px solid rgba(255,255,255,.45); box-shadow: 0 0 12px rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+    .btn-gift { top: 44px; right: 15px; background: radial-gradient(circle, #ffcc00, #ff5e62); }
+    .btn-withdraw { top: 44px; left: 15px; background: radial-gradient(circle, #00b09b, #96c93d); }
+    .btn-chart { bottom: 20px; left: 15px; background: radial-gradient(circle, #00c6ff, #0072ff); }
+    .btn-account { top: 44px; right: 76px; background: radial-gradient(circle, #9b59b6, #6a11cb); }
+
+    .header { position: fixed; top: 60px; left: 0; right: 0; text-align: center; z-index: 10; pointer-events: none; }
+    .balance-box { display: inline-block; padding: 8px 22px; border-radius: 30px; background: rgba(0,0,0,.55); border: 1px solid rgba(255,215,0,.45); }
+    .balance-text { color: #ffd700; font-size: 22px; font-weight: 900; }
+
+    .game-board { width: min(95vw, 920px); height: 400px; margin: 120px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; background: rgba(0,0,0,.35); border-radius: 36px; box-shadow: inset 0 0 50px rgba(0,0,0,.75); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px); }
+    .bet-zone { width: 30%; height: 100%; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer; }
+    .bet-zone::before { content: ''; position: absolute; inset: 0; z-index: -1; opacity: .95; }
+    .bet-zone.tai::before { background: radial-gradient(circle at top left, #ff416c, #ff4b2b); }
+    .bet-zone.xiu::before { background: radial-gradient(circle at bottom right, #00b4db, #0083b0); }
+    .bet-zone h2 { font-size: 54px; font-weight: 900; text-shadow: 3px 3px 6px rgba(0,0,0,.65); }
+    .bet-amount { margin-top: 10px; font-size: 20px; color: #00ff88; font-weight: 700; background: rgba(0,0,0,.55); padding: 5px 18px; border-radius: 14px; }
+    .bet-zone.selected { box-shadow: 0 0 25px rgba(0,255,136,.35); transform: scale(1.02); }
+
+    .center-area { width: 38%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
+    .status-box { position: absolute; top: -8px; left: 0; right: 0; text-align: center; z-index: 5; }
+    .status-text { display: inline-block; font-size: 22px; font-weight: 900; color: #ffd700; background: rgba(0,0,0,.55); border-radius: 20px; padding: 6px 18px; }
+    .timer-center { position: absolute; z-index: 5; font-size: 58px; font-weight: 900; color: #00ff88; text-shadow: 0 0 18px rgba(0,255,136,.45); }
+    .plate { width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, #e0e0e0 30%, #999 70%, #555 100%); display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,.8), inset 0 5px 15px rgba(255,255,255,.45); border: 2px solid #444; }
+    .bowl { width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #d32f2f, #8e0000, #3e0000); position: absolute; z-index: 4; cursor: grab; touch-action: none; box-shadow: inset -10px -10px 30px rgba(0,0,0,.5), inset 10px 10px 20px rgba(255,255,255,.2), 0 20px 40px rgba(0,0,0,.9); }
+    .bowl:active { cursor: grabbing; }
+
+    .dice-container { position: absolute; z-index: 3; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .dice { width: 44px; height: 44px; border-radius: 10px; background: #fff; padding: 4px; display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); box-shadow: inset -3px -3px 8px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.5); border: 1px solid #ccc; transition: transform .5s; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #111; align-self: center; justify-self: center; }
+    .dot.red { background: #d32f2f; }
+
+    @keyframes shake { 0% { transform: translate(0,0) rotate(0); } 20% { transform: translate(5px,-5px) rotate(5deg); } 40% { transform: translate(-5px,5px) rotate(-5deg); } 60% { transform: translate(5px,5px) rotate(5deg); } 80% { transform: translate(-5px,-5px) rotate(-5deg); } 100% { transform: translate(0,0) rotate(0); } }
+    .shaking { animation: shake .15s infinite; }
+
+    .controls { margin: 24px auto 0; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .input-bet { padding: 12px 18px; width: 160px; border-radius: 12px; border: 2px solid rgba(255,215,0,.5); background: rgba(0,0,0,.6); color: #ffd700; text-align: center; font-size: 18px; font-weight: 700; outline: none; }
+    .btn { padding: 12px 22px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 900; cursor: pointer; color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,.35); }
+    .btn:active { transform: translateY(1px); }
+    .btn-allin { background: linear-gradient(135deg, #f12711, #f5af19); }
+    .btn-bet { background: linear-gradient(135deg, #00b09b, #96c93d); min-width: 140px; }
+    .btn-bet:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(8px); }
+    .popup-box { width: min(92vw, 420px); background: linear-gradient(135deg, #2a1b0a, #1a1005); border: 1px solid #ffd700; border-radius: 20px; padding: 26px; text-align: center; position: relative; }
+    .btn-close { position: absolute; top: -14px; right: -14px; width: 34px; height: 34px; border-radius: 50%; background: #ff4b2b; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 2px solid #fff; }
+    .popup-box input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(0,0,0,.5); color: #fff; font-size: 16px; text-align: center; outline: none; margin-bottom: 12px; }
+    .popup-box button { width: 100%; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(to right, #00b4db, #0083b0); color: #fff; font-weight: 900; cursor: pointer; margin-bottom: 10px; }
+    .auth-hint { margin-bottom: 12px; color: #aaa; font-size: 13px; line-height: 1.4; }
+    .auth-badge { color: #00ff88; font-weight: 700; }
+
+    .chart-popup { width: min(96vw, 920px); }
+    .chart-layout { display: flex; gap: 15px; flex-wrap: wrap; }
+    .chart-section { flex: 1; min-width: 300px; background: #111; border: 1px solid #444; border-radius: 8px; padding: 10px; position: relative; }
+    .chart-section canvas { width: 100%; display: block; background: #111; }
+    .toggles-container { display: flex; flex-direction: column; gap: 10px; margin-right: 10px; }
+    .toggle-btn { padding: 6px 12px; border-radius: 20px; border: 2px solid #555; background: #222; color: #777; cursor: pointer; font-size: 12px; font-weight: 700; }
+    .toggle-btn.active { color: #fff; }
+    .toggle-btn.d1.active { background: #ff0044; border-color: #ff0044; }
+    .toggle-btn.d2.active { background: #b200ff; border-color: #b200ff; }
+    .toggle-btn.d3.active { background: #ffcc00; border-color: #ffcc00; color: #000; }
+    .session-info { position: absolute; right: 10px; top: 10px; text-align: right; font-size: 12px; color: #aaa; writing-mode: vertical-rl; transform: rotate(180deg); }
+    .session-info span { color: #fff; font-weight: 700; font-size: 14px; }
+
+    #toast-container { position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: rgba(0,0,0,.82); border: 1px solid #ffd700; padding: 10px 16px; border-radius: 8px; font-weight: 700; animation: fadein .25s ease-out; }
+    @keyframes fadein { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (max-width: 860px) {
+      .game-board { flex-direction: column; height: auto; padding-bottom: 20px; }
+      .bet-zone, .center-area { width: 100%; min-height: 180px; }
+      .chart-layout { flex-direction: column; }
+      .session-info { writing-mode: initial; transform: none; position: static; margin-top: 10px; text-align: center; }
+    }
+  </style>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="live-feed"><div id="liveFeedText">🔥 Chào mừng đến với Tài Xỉu Vip Pro - Chúc các bạn chơi game vui vẻ! 🔥</div></div>
+  <div id="toast-container"></div>
+
+  <div class="btn-round btn-gift" onclick="togglePopup('codeOverlay', true)">🎁</div>
+  <div class="btn-round btn-withdraw" onclick="togglePopup('withdrawOverlay', true)">💸</div>
+  <div class="btn-round btn-chart" onclick="openChart()">📈</div>
+  <div class="btn-round btn-account" onclick="togglePopup('accountOverlay', true)">👤</div>
+
+  <div class="overlay" id="codeOverlay">
+    <div class="popup-box">
+      <div class="btn-close" onclick="togglePopup('codeOverlay', false)">X</div>
+      <h2 style="color:#ffd700; margin-bottom:20px; font-weight:900;">NHẬP GIFTCODE</h2>
+      <div class="auth-hint">Chỉ tài khoản đã đăng nhập mới được nhập code.</div>
+      <input type="text" id="codeInput" placeholder="Nhập mã quà tặng...">
+      <button onclick="redeemCode()">NHẬN THƯỞNG</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="withdrawOverlay">
+    <div class="popup-box">
+      <div class="btn-close" onclick="togglePopup('withdrawOverlay', false)">X</div>
+      <h2 style="color:#00ff88; margin-bottom:20px; font-weight:900;">RÚT TIỀN</h2>
+      <p style="margin-bottom:15px; color:#aaa;">Số dư khả dụng: <span id="availBalance" style="color:#ffd700; font-weight:bold;">0</span></p>
+      <input type="number" id="withdrawInput" placeholder="Nhập số tiền muốn rút...">
+      <button onclick="withdrawMoney()" style="background: linear-gradient(to right, #f12711, #f5af19);">RÚT NGAY</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="accountOverlay">
+    <div class="popup-box">
+      <div class="btn-close" onclick="togglePopup('accountOverlay', false)">X</div>
+      <h2 style="color:#ffd700; margin-bottom:20px; font-weight:900;">TÀI KHOẢN</h2>
+      <div class="auth-hint">
+        Bạn phải tự tạo tài khoản mới mới có thể nhập code và chơi.
+        <br>Đang dùng: <span id="currentUserText" class="auth-badge">chưa đăng nhập</span>
+      </div>
+      <input type="text" id="accUser" placeholder="Tên tài khoản">
+      <input type="password" id="accPass" placeholder="Mật khẩu">
+      <button onclick="registerAccount()" style="margin-bottom:10px;">TẠO TÀI KHOẢN</button>
+      <button onclick="loginAccount()" style="margin-bottom:10px; background: linear-gradient(to right, #00b09b, #96c93d);">ĐĂNG NHẬP</button>
+      <button onclick="logoutAccount()" style="background: linear-gradient(to right, #f12711, #f5af19);">ĐĂNG XUẤT</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="chartOverlay">
+    <div class="popup-box chart-popup">
+      <div class="btn-close" onclick="togglePopup('chartOverlay', false)">X</div>
+      <h2 style="color:#ffd700; font-weight:900; margin-bottom:10px;">LỊCH SỬ PHIÊN</h2>
+      <div class="chart-layout">
+        <div style="display:flex; flex:1;">
+          <div class="toggles-container">
+            <div class="toggle-btn d1 active" id="tg-d1" onclick="toggleLine(1)">XÍ NGẦU 1</div>
+            <div class="toggle-btn d2 active" id="tg-d2" onclick="toggleLine(2)">XÍ NGẦU 2</div>
+            <div class="toggle-btn d3 active" id="tg-d3" onclick="toggleLine(3)">XÍ NGẦU 3</div>
+          </div>
+          <div class="chart-section" style="flex:1;">
+            <canvas id="diceCanvas" width="400" height="250"></canvas>
+          </div>
+        </div>
+        <div class="chart-section" style="padding-right:40px;">
+          <canvas id="totalCanvas" width="400" height="250"></canvas>
+          <div class="session-info" id="sessionInfoText">
+            Phiên gần nhất #<span id="sessionInfoId">---</span><br><span id="sessionInfoRes">---</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="balance-box">
+      <div class="balance-text">💰 <span id="balanceDisplay">0</span> VNĐ</div>
+    </div>
+  </div>
+
+  <div class="game-board">
+    <div class="bet-zone tai" id="zone-tai" onclick="selectZone('tai')">
+      <h2>TÀI</h2>
+      <div class="bet-amount" id="bet-tai">0</div>
+    </div>
+
+    <div class="center-area">
+      <div class="status-box"><div class="status-text" id="statusText">PHIÊN MỚI</div></div>
+      <div class="timer-center" id="timerDisplay">60</div>
+
+      <div class="plate">
+        <div class="dice-container">
+          <div class="dice" id="d1"></div>
+          <div style="display:flex; gap:10px;">
+            <div class="dice" id="d2"></div>
+            <div class="dice" id="d3"></div>
+          </div>
+        </div>
+        <div class="bowl" id="bowl"></div>
+      </div>
+    </div>
+
+    <div class="bet-zone xiu" id="zone-xiu" onclick="selectZone('xiu')">
+      <h2>XỈU</h2>
+      <div class="bet-amount" id="bet-xiu">0</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <input type="number" id="betInput" class="input-bet" placeholder="Nhập tiền...">
+    <button class="btn btn-allin" onclick="allIn()">ALL IN</button>
+    <button class="btn btn-bet" id="btnBet" onclick="placeBet()">ĐẶT CƯỢC</button>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
