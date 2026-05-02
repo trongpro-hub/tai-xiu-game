@@ -443,14 +443,6 @@ socket.on('user:profile', (profile) => {
   btnBet.disabled = gameState !== 'BETTING';
 });
 
-setInterval(() => {
-  const fakeNames = ["ẩn danh", "VuaTàiXỉu", "PhapSu", "Huy99", "LinhChi", "ThanhNien", "DaiGia"];
-  const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
-  const amt = (Math.floor(Math.random() * 50) + 1) * 10000;
-  const side = Math.random() > 0.5 ? "Tài" : "Xỉu";
-  document.getElementById('liveFeedText').innerText += ` • Người chơi ${name} vừa cược ${amt.toLocaleString()}đ vào ${side}`;
-}, 3000);
-
 initDices();
 openAccountRequired();
 updateCurrentUserLabel();
