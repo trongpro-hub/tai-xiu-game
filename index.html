@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tài Xỉu Siêu Cấp Vip Pro - Bản Chuẩn</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+        body { background: #0f0c29; background: linear-gradient(to right, #24243e, #302b63, #0f0c29); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
+
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: rgba(0,0,0,0.8); border: 1px solid #ffd700; padding: 10px 20px; border-radius: 8px; color: #fff; font-weight: bold; animation: slideDown 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        .live-feed { position: absolute; top: 0; width: 100%; background: rgba(0,0,0,0.5); font-size: 12px; color: #aaa; padding: 5px 0; overflow: hidden; white-space: nowrap; z-index: 50; border-bottom: 1px solid rgba(255, 215, 0, 0.3); }
+        .feed-text { display: inline-block; animation: scrollLeft 20s linear infinite; }
+        @keyframes scrollLeft { from { transform: translateX(100vw); } to { transform: translateX(-100%); } }
+
+        .btn-round { position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); cursor: pointer; z-index: 110; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 15px rgba(0,0,0,0.5); transition: 0.2s; backdrop-filter: blur(5px); }
+        .btn-round:active { transform: scale(0.9); }
+        .btn-gift { top: 40px; right: 15px; background: radial-gradient(circle, #ffcc00, #ff5e62); animation: pulseGift 2s infinite; }
+        .btn-withdraw { top: 40px; left: 15px; background: radial-gradient(circle, #00b09b, #96c93d); }
+        .btn-chart { bottom: 20px; left: 15px; background: radial-gradient(circle, #00c6ff, #0072ff); }
+        .btn-account { top: 40px; right: 75px; background: radial-gradient(circle, #9b59b6, #6a11cb); }
+        @keyframes pulseGift { 0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(255, 204, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); } }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(8px); }
+        .popup-box { background: linear-gradient(135deg, #2a1b0a, #1a1005); padding: 30px; border-radius: 20px; border: 1px solid #ffd700; position: relative; box-shadow: 0 0 40px rgba(255, 215, 0, 0.15); width: 90%; max-width: 400px; text-align: center; }
+        .btn-close { position: absolute; top: -15px; right: -15px; width: 35px; height: 35px; background: #ff4b2b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 210;}
+        .popup-box input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(0,0,0,0.5); color: #fff; font-size: 16px; text-align: center; outline: none; }
+        .popup-box button { background: linear-gradient(to right, #00b4db, #0083b0); color: white; width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+
+        .chart-popup { max-width: 900px; width: 95%; padding: 20px; }
+        .chart-layout { display: flex; gap: 15px; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+        .chart-section { background: #111; border: 1px solid #444; border-radius: 8px; position: relative; flex: 1; min-width: 300px; padding: 10px; }
+        .chart-section canvas { width: 100%; height: auto; background: #111; display: block; }
+
+        .toggles-container { display: flex; flex-direction: column; gap: 10px; margin-right: 10px; }
+        .toggle-btn { padding: 6px 12px; border-radius: 20px; border: 2px solid #555; background: #222; color: #777; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; display: flex; align-items: center; gap: 5px; }
+        .toggle-btn::after { content: '✔'; font-size: 10px; opacity: 0; }
+        .toggle-btn.active::after { opacity: 1; }
+        .toggle-btn.d1.active { background: #ff0044; border-color: #ff0044; color: #fff; }
+        .toggle-btn.d2.active { background: #b200ff; border-color: #b200ff; color: #fff; }
+        .toggle-btn.d3.active { background: #ffcc00; border-color: #ffcc00; color: #000; }
+
+        .session-info { position: absolute; right: 10px; top: 10px; text-align: right; font-size: 12px; color: #aaa; text-orientation: mixed; writing-mode: vertical-rl; transform: rotate(180deg); height: 100%; display: flex; justify-content: center; }
+        .session-info span { color: #fff; font-weight: bold; font-size: 14px; margin-top: 5px; }
+
+        .header { position: absolute; top: 40px; width: 100%; text-align: center; z-index: 100; pointer-events: none; }
+        .balance-box { display: inline-block; background: rgba(0, 0, 0, 0.6); padding: 8px 30px; border-radius: 30px; border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .balance-text { font-size: 24px; color: #ffd700; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+
+        .game-board { display: flex; align-items: center; justify-content: space-between; width: 95vw; max-width: 900px; height: 400px; background: rgba(0, 0, 0, 0.4); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 40px; padding: 15px; position: relative; margin-top: 30px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
+
+        .bet-zone { width: 30%; height: 90%; border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; border: 2px solid transparent; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .bet-zone::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.8; z-index: -1; }
+        .bet-zone.tai::before { background: radial-gradient(circle at top left, #ff416c, #ff4b2b); }
+        .bet-zone.xiu::before { background: radial-gradient(circle at bottom right, #00b4db, #0083b0); }
+        .bet-zone h2 { font-size: 50px; font-weight: 900; text-shadow: 3px 3px 6px rgba(0,0,0,0.6); margin-bottom: 10px; letter-spacing: 2px; }
+        .bet-amount { font-size: 20px; color: #00ff88; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 15px; border: 1px solid rgba(0,255,136,0.3); }
+        .bet-zone.selected { border-color: #00ff88; box-shadow: 0 0 30px rgba(0,255,136,0.4); transform: scale(1.03); }
+
+        .center-area { position: relative; width: 38%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .status-box { position: absolute; top: -10px; width: 100%; text-align: center; z-index: 20; }
+        .status-text { font-size: 24px; font-weight: 900; text-transform: uppercase; color: #ffd700; text-shadow: 0 2px 10px #000; background: rgba(0,0,0,0.6); padding: 5px 20px; border-radius: 20px; display: inline-block; }
+        .timer-center { position: absolute; z-index: 15; font-size: 60px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px rgba(0,255,136,0.6); transition: opacity 0.3s; }
+
+        .plate { width: 260px; height: 260px; background: radial-gradient(circle, #e0e0e0 30%, #999 70%, #555 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 5px 15px rgba(255,255,255,0.5); border: 2px solid #444; }
+
+        .bowl { width: 240px; height: 240px; background: radial-gradient(circle at 30% 30%, #d32f2f, #8e0000, #3e0000); border-radius: 50%; position: absolute; z-index: 10; cursor: grab; box-shadow: inset -10px -10px 30px rgba(0,0,0,0.5), inset 10px 10px 20px rgba(255,255,255,0.2), 0 20px 40px rgba(0,0,0,0.9); border: 2px solid #500; touch-action: none; }
+        .bowl:active { cursor: grabbing; }
+
+        .dice-container { position: absolute; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .dice { width: 44px; height: 44px; background: #fff; border-radius: 10px; box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.5); display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 4px; border: 1px solid #ccc; transition: transform 0.5s; }
+        .dot { background: #111; border-radius: 50%; width: 8px; height: 8px; justify-self: center; align-self: center; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.5); }
+        .dot.red { background: #d32f2f; }
+
+        @keyframes shake { 0% { transform: translate(0,0) rotate(0); } 20% { transform: translate(5px, -5px) rotate(5deg); } 40% { transform: translate(-5px, 5px) rotate(-5deg); } 60% { transform: translate(5px, 5px) rotate(5deg); } 80% { transform: translate(-5px, -5px) rotate(-5deg); } 100% { transform: translate(0,0) rotate(0); } }
+        .shaking { animation: shake 0.15s infinite; }
+
+        .controls { margin-top: 30px; display: flex; gap: 15px; justify-content: center; z-index: 10; flex-wrap: wrap; }
+        .input-bet { padding: 12px 20px; font-size: 18px; border-radius: 12px; border: 2px solid rgba(255,215,0,0.5); background: rgba(0,0,0,0.6); color: #ffd700; width: 160px; text-align: center; outline: none; font-weight: bold; }
+        .input-bet:focus { border-color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.3); }
+        .btn { padding: 12px 25px; font-size: 16px; font-weight: 900; border-radius: 12px; text-transform: uppercase; border: none; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        .btn:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        .btn-allin { background: linear-gradient(135deg, #f12711, #f5af19); color: white; }
+        .btn-bet { background: linear-gradient(135deg, #00b09b, #96c93d); color: white; min-width: 140px; }
+        .btn-bet:disabled { filter: grayscale(1); cursor: not-allowed; }
+
+        .floating-text { position: absolute; font-size: 28px; font-weight: bold; color: #00ff88; text-shadow: 0 0 10px #000; pointer-events: none; animation: floatUp 2s forwards; z-index: 300; }
+        @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
+
+        .auth-hint { margin-bottom: 12px; color: #aaa; font-size: 13px; line-height: 1.4; }
+        .auth-badge { color: #00ff88; font-weight: 700; }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+    <div class="live-feed">
+        <div class="feed-text" id="liveFeedText">🔥 Chào mừng đến với Tài Xỉu Vip Pro - Chúc các bạn chơi game vui vẻ! 🔥</div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div class="btn-round btn-gift" onclick="togglePopup('codeOverlay', true)">🎁</div>
+    <div class="btn-round btn-withdraw" onclick="togglePopup('withdrawOverlay', true)">💸</div>
+    <div class="btn-round btn-chart" onclick="openChart()">📈</div>
+    <div class="btn-round btn-account" onclick="togglePopup('accountOverlay', true)">👤</div>
+
+    <div class="overlay" id="codeOverlay">
+        <div class="popup-box">
+            <div class="btn-close" onclick="togglePopup('codeOverlay', false)">X</div>
+            <h2 style="color:#ffd700; margin-bottom:20px; font-weight: 900;">NHẬP GIFTCODE</h2>
+            <div class="auth-hint">Chỉ tài khoản đã đăng nhập mới được nhập code.</div>
+            <input type="text" id="codeInput" placeholder="Nhập mã quà tặng...">
+            <button onclick="redeemCode()">NHẬN THƯỞNG</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="withdrawOverlay">
+        <div class="popup-box">
+            <div class="btn-close" onclick="togglePopup('withdrawOverlay', false)">X</div>
+            <h2 style="color:#00ff88; margin-bottom:20px; font-weight: 900;">RÚT TIỀN</h2>
+            <p style="margin-bottom:15px; color:#aaa;">Số dư khả dụng: <span id="availBalance" style="color:#ffd700; font-weight:bold;">0</span></p>
+            <input type="number" id="withdrawInput" placeholder="Nhập số tiền muốn rút...">
+            <button onclick="withdrawMoney()" style="background: linear-gradient(to right, #f12711, #f5af19);">RÚT NGAY</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="accountOverlay">
+        <div class="popup-box">
+            <div class="btn-close" onclick="togglePopup('accountOverlay', false)">X</div>
+            <h2 style="color:#ffd700; margin-bottom:20px; font-weight: 900;">TÀI KHOẢN</h2>
+            <div class="auth-hint">
+                Bạn phải tự tạo tài khoản mới mới có thể nhập code và chơi.
+                <br>Đang dùng: <span id="currentUserText" class="auth-badge">chưa đăng nhập</span>
+            </div>
+            <input type="text" id="accUser" placeholder="Tên tài khoản">
+            <input type="password" id="accPass" placeholder="Mật khẩu">
+            <button onclick="registerAccount()" style="margin-bottom:10px;">TẠO TÀI KHOẢN</button>
+            <button onclick="loginAccount()" style="margin-bottom:10px; background: linear-gradient(to right, #00b09b, #96c93d);">ĐĂNG NHẬP</button>
+            <button onclick="logoutAccount()" style="background: linear-gradient(to right, #f12711, #f5af19);">ĐĂNG XUẤT</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="chartOverlay">
+        <div class="popup-box chart-popup">
+            <div class="btn-close" onclick="togglePopup('chartOverlay', false)">X</div>
+            <h2 style="color:#ffd700; font-weight: 900; margin-bottom: 10px;">LỊCH SỬ PHIÊN</h2>
+
+            <div class="chart-layout">
+                <div style="display:flex; flex: 1;">
+                    <div class="toggles-container">
+                        <div class="toggle-btn d1 active" id="tg-d1" onclick="toggleLine(1)">XÍ NGẦU 1</div>
+                        <div class="toggle-btn d2 active" id="tg-d2" onclick="toggleLine(2)">XÍ NGẦU 2</div>
+                        <div class="toggle-btn d3 active" id="tg-d3" onclick="toggleLine(3)">XÍ NGẦU 3</div>
+                    </div>
+                    <div class="chart-section" style="flex: 1;">
+                        <canvas id="diceCanvas" width="400" height="250"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-section" style="padding-right: 40px;">
+                    <canvas id="totalCanvas" width="400" height="250"></canvas>
+                    <div class="session-info" id="sessionInfoText">
+                        Phiên gần nhất #<span id="sessionInfoId">---</span> <br><span id="sessionInfoRes">---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="balance-box">
+            <div class="balance-text">💰 <span id="balanceDisplay">0</span> VNĐ</div>
+        </div>
+    </div>
+
+    <div class="game-board">
+        <div class="bet-zone tai" id="zone-tai" onclick="selectZone('tai')">
+            <h2>TÀI</h2>
+            <div class="bet-amount" id="bet-tai">0</div>
+        </div>
+
+        <div class="center-area" id="centerArea">
+            <div class="status-box"><div class="status-text" id="statusText">PHIÊN MỚI</div></div>
+            <div class="timer-center" id="timerDisplay">60</div>
+
+            <div class="plate">
+                <div class="dice-container">
+                    <div class="dice" id="d1"></div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="dice" id="d2"></div>
+                        <div class="dice" id="d3"></div>
+                    </div>
+                </div>
+                <div class="bowl" id="bowl"></div>
+            </div>
+        </div>
+
+        <div class="bet-zone xiu" id="zone-xiu" onclick="selectZone('xiu')">
+            <h2>XỈU</h2>
+            <div class="bet-amount" id="bet-xiu">0</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <input type="number" id="betInput" class="input-bet" placeholder="Nhập tiền...">
+        <button class="btn btn-allin" onclick="allIn()">ALL IN</button>
+        <button class="btn btn-bet" id="btnBet" onclick="placeBet()">ĐẶT CƯỢC</button>
+    </div>
+
+    <script>
+        const GIFT_CODES = {"VIPPRO": 500000, "TANTHU": 200000, "CODEVIP": 1000000, "KHOILOAN": 1000000000};
+
+        const STORAGE_PREFIX = 'TX_VIP_PRO';
+        const ACCOUNTS_KEY = `${STORAGE_PREFIX}_accounts`;
+        const CURRENT_USER_KEY = `${STORAGE_PREFIX}_current_user`;
+
+        let accounts = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || '{}');
+        let currentUser = localStorage.getItem(CURRENT_USER_KEY) || '';
+
+        let balance = 0;
+        let usedCodes = [];
+        let timeLeft = 60;
+        let shakeLeft = 0;
+        let openLeft = 12;
+        let resultLeft = 0;
+        let gameState = 'BETTING';
+        let selectedZone = null;
+        let currentBet = { tai: 0, xiu: 0 };
+        let historyData = [];
+        let currentSessionId = 5409491;
+        let currentResult = { id: currentSessionId, total: 0, side: '', dices: [1,1,1] };
+        let showDice = { 1: true, 2: true, 3: true };
+
+        const timerEl = document.getElementById('timerDisplay');
+        const statusEl = document.getElementById('statusText');
+        const bowlEl = document.getElementById('bowl');
+        const balanceEl = document.getElementById('balanceDisplay');
+        const btnBet = document.getElementById('btnBet');
+        const betInputEl = document.getElementById('betInput');
+        const currentUserText = document.getElementById('currentUserText');
+
+        function defaultState() {
+            return {
+                balance: 0,
+                usedCodes: [],
+                timeLeft: 60,
+                shakeLeft: 0,
+                openLeft: 12,
+                resultLeft: 0,
+                gameState: 'BETTING',
+                selectedZone: null,
+                currentBet: { tai: 0, xiu: 0 },
+                historyData: [],
+                currentSessionId: 5409491,
+                currentResult: { id: 5409491, total: 0, side: '', dices: [1,1,1] },
+                showDice: { 1: true, 2: true, 3: true }
+            };
+        }
+
+        function getSaveKey(user = currentUser) {
+            return `${STORAGE_PREFIX}_state_${user}`;
+        }
+
+        function saveAccounts() {
+            localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+        }
+
+        function updateCurrentUserLabel() {
+            currentUserText.innerText = currentUser ? currentUser : 'chưa đăng nhập';
+        }
+
+        function saveState() {
+            if (!currentUser || !accounts[currentUser]) return;
+            localStorage.setItem(CURRENT_USER_KEY, currentUser);
+            localStorage.setItem(getSaveKey(), JSON.stringify({
+                balance,
+                usedCodes,
+                timeLeft,
+                shakeLeft,
+                openLeft,
+                resultLeft,
+                gameState,
+                selectedZone,
+                currentBet,
+                historyData,
+                currentSessionId,
+                currentResult,
+                showDice
+            }));
+        }
+
+        function applyState(s) {
+            balance = Number(s.balance || 0);
+            usedCodes = Array.isArray(s.usedCodes) ? s.usedCodes : [];
+            timeLeft = Number(s.timeLeft || 60);
+            shakeLeft = Number(s.shakeLeft || 0);
+            openLeft = Number(s.openLeft || 12);
+            resultLeft = Number(s.resultLeft || 0);
+            gameState = s.gameState || 'BETTING';
+            selectedZone = s.selectedZone || null;
+            currentBet = s.currentBet || { tai: 0, xiu: 0 };
+            historyData = Array.isArray(s.historyData) ? s.historyData : [];
+            currentSessionId = Number(s.currentSessionId || 5409491);
+            currentResult = s.currentResult || { id: currentSessionId, total: 0, side: '', dices: [1,1,1] };
+            showDice = s.showDice || { 1: true, 2: true, 3: true };
+        }
+
+        function loadState() {
+            updateCurrentUserLabel();
+
+            if (!currentUser || !accounts[currentUser]) {
+                applyState(defaultState());
+                updateUIFromState();
+                openAccountRequired();
+                return;
+            }
+
+            const raw = localStorage.getItem(getSaveKey());
+            if (raw) {
+                try {
+                    applyState(JSON.parse(raw));
+                } catch (e) {
+                    applyState(defaultState());
+                }
+            } else {
+                applyState(defaultState());
+            }
+
+            updateUIFromState();
+            saveState();
+        }
+
+        function updateUIFromState() {
+            updateBalance();
+            timerEl.innerText = gameState === 'BETTING' ? timeLeft : (gameState === 'SHAKING' ? '' : (gameState === 'WAIT_OPEN' ? openLeft : ''));
+            statusEl.innerText = gameState === 'BETTING' ? 'PHIÊN MỚI' :
+                                 gameState === 'SHAKING' ? 'ĐANG LẮC' :
+                                 gameState === 'WAIT_OPEN' ? 'MỜI MỞ BÁT' :
+                                 gameState === 'RESULT' ? `${currentResult.side.toUpperCase()} - ${currentResult.total}` : 'PHIÊN MỚI';
+
+            statusEl.style.color = gameState === 'RESULT'
+                ? (currentResult.side === 'tai' ? '#ff4b2b' : '#00b4db')
+                : '#ffd700';
+
+            document.getElementById('bet-tai').innerText = (currentBet.tai || 0).toLocaleString();
+            document.getElementById('bet-xiu').innerText = (currentBet.xiu || 0).toLocaleString();
+
+            document.querySelectorAll('.bet-zone').forEach(el => el.classList.remove('selected'));
+            if (selectedZone) {
+                const z = document.getElementById('zone-' + selectedZone);
+                if (z) z.classList.add('selected');
+            }
+
+            if (gameState === 'SHAKING') {
+                bowlEl.classList.add('shaking');
+                btnBet.disabled = true;
+            } else {
+                bowlEl.classList.remove('shaking');
+                btnBet.disabled = (gameState !== 'BETTING');
+            }
+
+            if (gameState === 'WAIT_OPEN' || gameState === 'RESULT') {
+                renderDice('d1', currentResult.dices[0] || 1);
+                renderDice('d2', currentResult.dices[1] || 1);
+                renderDice('d3', currentResult.dices[2] || 1);
+                if (gameState === 'WAIT_OPEN') initDrag();
+            }
+
+            if (gameState === 'RESULT') {
+                bowlEl.style.opacity = '0';
+            } else {
+                bowlEl.style.opacity = '1';
+            }
+
+            drawTotalChart();
+            drawDiceChart();
+            updateCurrentUserLabel();
+        }
+
+        function requireLogin() {
+            if (currentUser && accounts[currentUser]) return true;
+            showToast("Bạn phải tạo tài khoản rồi mới được nhập code hoặc chơi!", "error");
+            openAccountRequired();
+            return false;
+        }
+
+        function openAccountRequired() {
+            togglePopup('accountOverlay', true);
+            betInputEl.disabled = true;
+            btnBet.disabled = true;
+        }
+
+        function updateBalance() {
+            balanceEl.innerText = balance.toLocaleString();
+            const avail = document.getElementById('availBalance');
+            if (avail) avail.innerText = balance.toLocaleString() + ' VNĐ';
+        }
+
+        function showToast(msg, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = type === 'success' ? `✅ ${msg}` : type === 'error' ? `❌ ${msg}` : `🔔 ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        const fakeNames = ["ẩn danh", "VuaTàiXỉu", "PhapSu", "Huy99", "LinhChi", "ThanhNien", "DaiGia"];
+        setInterval(() => {
+            const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+            const amt = (Math.floor(Math.random() * 50) + 1) * 10000;
+            const side = Math.random() > 0.5 ? "Tài" : "Xỉu";
+            document.getElementById('liveFeedText').innerText += ` • Người chơi ${name} vừa cược ${amt.toLocaleString()}đ vào ${side}`;
+        }, 3000);
+
+        function togglePopup(id, show) {
+            document.getElementById(id).style.display = show ? 'flex' : 'none';
+            if (id === 'withdrawOverlay' && show) {
+                document.getElementById('availBalance').innerText = balance.toLocaleString() + ' VNĐ';
+            }
+            if (id === 'accountOverlay' && show) {
+                updateCurrentUserLabel();
+            }
+        }
+
+        function registerAccount() {
+            const user = document.getElementById('accUser').value.trim();
+            const pass = document.getElementById('accPass').value.trim();
+
+            if (!user || !pass) return showToast("Vui lòng nhập đủ tài khoản và mật khẩu!", "error");
+            if (accounts[user]) return showToast("Tài khoản đã tồn tại!", "error");
+
+            accounts[user] = pass;
+            saveAccounts();
+            currentUser = user;
+            localStorage.setItem(CURRENT_USER_KEY, currentUser);
+            applyState(defaultState());
+            updateUIFromState();
+            saveState();
+
+            document.getElementById('accUser').value = '';
+            document.getElementById('accPass').value = '';
+            betInputEl.disabled = false;
+            btnBet.disabled = false;
+            togglePopup('accountOverlay', false);
+            showToast(`Đã tạo và đăng nhập: ${currentUser}`, "success");
+        }
+
+        function loginAccount() {
+            const user = document.getElementById('accUser').value.trim();
+            const pass = document.getElementById('accPass').value.trim();
+
+            if (!user || !pass) return showToast("Vui lòng nhập đủ tài khoản và mật khẩu!", "error");
+            if (!accounts[user] || accounts[user] !== pass) return showToast("Sai tài khoản hoặc mật khẩu!", "error");
+
+            currentUser = user;
+            localStorage.setItem(CURRENT_USER_KEY, currentUser);
+            betInputEl.disabled = false;
+            btnBet.disabled = false;
+            loadState();
+
+            document.getElementById('accUser').value = '';
+            document.getElementById('accPass').value = '';
+            togglePopup('accountOverlay', false);
+            showToast(`Đã đăng nhập: ${currentUser}`, "success");
+        }
+
+        function logoutAccount() {
+            saveState();
+            currentUser = '';
+            localStorage.removeItem(CURRENT_USER_KEY);
+            applyState(defaultState());
+            updateUIFromState();
+            openAccountRequired();
+            showToast("Đã đăng xuất!", "success");
+        }
+
+        function redeemCode() {
+            if (!requireLogin()) return;
+            let code = document.getElementById('codeInput').value.trim().toUpperCase();
+            if(code === '') return showToast("Vui lòng nhập mã!", "error");
+            if (usedCodes.includes(code)) return showToast("Mã này bạn đã sử dụng rồi!", "error");
+            if (GIFT_CODES[code]) {
+                balance += GIFT_CODES[code];
+                usedCodes.push(code);
+                updateBalance();
+                showToast(`Nhận thành công ${GIFT_CODES[code].toLocaleString()} VNĐ!`, "success");
+                document.getElementById('codeInput').value = '';
+                togglePopup('codeOverlay', false);
+                saveState();
+            } else {
+                showToast("Mã Giftcode không hợp lệ!", "error");
+            }
+        }
+
+        function withdrawMoney() {
+            if (!requireLogin()) return;
+            let amt = parseInt(document.getElementById('withdrawInput').value);
+            if (isNaN(amt) || amt <= 0) return showToast("Số tiền không hợp lệ!", "error");
+            if (amt > balance) return showToast("Số dư không đủ để rút!", "error");
+
+            balance -= amt;
+            updateBalance();
+            showToast(`Đã tạo lệnh rút ${amt.toLocaleString()} VNĐ thành công!`, "success");
+            document.getElementById('withdrawInput').value = '';
+            togglePopup('withdrawOverlay', false);
+            saveState();
+        }
+
+        function selectZone(z) {
+            if (!requireLogin()) return;
+            if (gameState !== 'BETTING') return;
+            selectedZone = z;
+            document.querySelectorAll('.bet-zone').forEach(el => el.classList.remove('selected'));
+            document.getElementById('zone-'+z).classList.add('selected');
+            saveState();
+        }
+
+        function allIn() {
+            if (!requireLogin()) return;
+            if (gameState === 'BETTING' && balance > 0) document.getElementById('betInput').value = balance;
+        }
+
+        function placeBet() {
+            if (!requireLogin()) return;
+            let val = parseInt(document.getElementById('betInput').value);
+            if (gameState !== 'BETTING') return showToast("Đã hết thời gian cược!", "error");
+            if (!selectedZone) return showToast("Vui lòng chọn cửa Tài hoặc Xỉu!", "error");
+            if (isNaN(val) || val <= 0) return showToast("Số tiền cược không hợp lệ!", "error");
+            if (val > balance) return showToast("Số dư không đủ!", "error");
+
+            balance -= val;
+            currentBet[selectedZone] += val;
+            updateBalance();
+            document.getElementById('bet-'+selectedZone).innerText = currentBet[selectedZone].toLocaleString();
+            showToast(`Đã cược ${val.toLocaleString()} vào ${selectedZone.toUpperCase()}`, "success");
+            document.getElementById('betInput').value = '';
+            saveState();
+        }
+
+        const dicePatterns = { 1: [4], 2: [0,8], 3: [0,4,8], 4: [0,2,6,8], 5: [0,2,4,6,8], 6: [0,2,3,5,6,8] };
+        function renderDice(id, num) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            el.style.transform = `rotate(${Math.floor(Math.random()*360)}deg)`;
+            for(let i=0; i<9; i++) {
+                let dot = document.createElement('div');
+                if(dicePatterns[num].includes(i)) dot.className = 'dot' + (num === 1 || num === 4 ? ' red' : '');
+                el.appendChild(dot);
+            }
+        }
+        function initDices() { renderDice('d1', 1); renderDice('d2', 2); renderDice('d3', 3); }
+
+        let tickLock = false;
+        setInterval(() => {
+            if (tickLock) return;
+            tickLock = true;
+
+            if (gameState === 'BETTING') {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) startShaking();
+            } else if (gameState === 'SHAKING') {
+                shakeLeft--;
+                if (shakeLeft <= 0) revealResult();
+            } else if (gameState === 'WAIT_OPEN') {
+                openLeft--;
+                timerEl.innerText = openLeft;
+                if (openLeft <= 0) autoOpenBowl();
+            } else if (gameState === 'RESULT') {
+                resultLeft--;
+                if (resultLeft <= 0) resetRound();
+            }
+
+            saveState();
+            tickLock = false;
+        }, 1000);
+
+        function startShaking() {
+            gameState = 'SHAKING';
+            shakeLeft = 2;
+            statusEl.innerText = "ĐANG LẮC";
+            timerEl.innerText = "";
+            btnBet.disabled = true;
+            bowlEl.classList.add('shaking');
+            saveState();
+        }
+
+        function revealResult() {
+            bowlEl.classList.remove('shaking');
+            gameState = 'WAIT_OPEN';
+            openLeft = 12;
+            statusEl.innerText = "MỜI MỞ BÁT";
+
+            let d = [
+                Math.floor(Math.random()*6)+1,
+                Math.floor(Math.random()*6)+1,
+                Math.floor(Math.random()*6)+1
+            ];
+            let total = d[0] + d[1] + d[2];
+            currentSessionId++;
+            currentResult = { id: currentSessionId, total: total, side: total >= 11 ? 'tai' : 'xiu', dices: d };
+
+            renderDice('d1', d[0]);
+            renderDice('d2', d[1]);
+            renderDice('d3', d[2]);
+            initDrag();
+            timerEl.innerText = openLeft;
+            saveState();
+        }
+
+        let isDragging = false, startX, startY, currentX = 0, currentY = 0;
+        function initDrag() {
+            currentX = 0;
+            currentY = 0;
+            bowlEl.style.transition = "none";
+
+            const startDrag = (e) => {
+                if(gameState !== 'WAIT_OPEN') return;
+                isDragging = true;
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = clientX - currentX;
+                startY = clientY - currentY;
+                timerEl.style.opacity = "0";
+            };
+
+            const drag = (e) => {
+                if(!isDragging) return;
+                e.preventDefault();
+                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                currentX = clientX - startX;
+                currentY = clientY - startY;
+                bowlEl.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                if(Math.abs(currentX) > 120 || Math.abs(currentY) > 120) {
+                    isDragging = false;
+                    openBowl();
+                }
+            };
+
+            const endDrag = () => {
+                if(!isDragging) return;
+                isDragging = false;
+                bowlEl.style.transition = "0.3s";
+                bowlEl.style.transform = "translate(0px, 0px)";
+                currentX = 0;
+                currentY = 0;
+                timerEl.style.opacity = "1";
+            };
+
+            bowlEl.onmousedown = startDrag;
+            window.onmousemove = drag;
+            window.onmouseup = endDrag;
+            bowlEl.ontouchstart = startDrag;
+            window.ontouchmove = drag;
+            window.ontouchend = endDrag;
+        }
+
+        function autoOpenBowl() {
+            if (gameState !== 'WAIT_OPEN') return;
+            openBowl(true);
+        }
+
+        function openBowl(isAuto = false) {
+            if (gameState !== 'WAIT_OPEN') return;
+
+            gameState = 'RESULT';
+            resultLeft = 3;
+            bowlEl.style.transition = "transform 0.6s ease-out, opacity 0.5s";
+            bowlEl.style.transform = `translate(${currentX * 3}px, ${currentY * 3}px) scale(0.8)`;
+            bowlEl.style.opacity = "0";
+            bowlEl.onmousedown = null;
+            bowlEl.ontouchstart = null;
+
+            statusEl.innerText = `${currentResult.side.toUpperCase()} - ${currentResult.total}`;
+            statusEl.style.color = currentResult.side === 'tai' ? '#ff4b2b' : '#00b4db';
+
+            checkWin(isAuto);
+            saveState();
+        }
+
+        function checkWin(isAuto = false) {
+            historyData.push(currentResult);
+            if(historyData.length > 20) historyData.shift();
+
+            let betAmt = currentBet[currentResult.side];
+            if (betAmt > 0) {
+                let winAmt = betAmt * 1.98;
+                balance += winAmt;
+                showToast(`Tuyệt vời! Bạn ăn ${winAmt.toLocaleString()} VNĐ`, "success");
+                let floating = document.createElement('div');
+                floating.className = 'floating-text';
+                floating.innerText = `+${winAmt.toLocaleString()}`;
+                document.getElementById(`zone-${currentResult.side}`).appendChild(floating);
+                setTimeout(() => floating.remove(), 2000);
+            } else if (currentBet.tai > 0 || currentBet.xiu > 0) {
+                showToast("Tiếc quá, bạn đã thua!", "error");
+            }
+
+            updateBalance();
+            drawTotalChart();
+            drawDiceChart();
+            saveState();
+        }
+
+        function resetRound() {
+            updateBalance();
+            bowlEl.style.transition = "none";
+            bowlEl.style.transform = "translate(0,0)";
+            bowlEl.style.opacity = "1";
+            timerEl.style.opacity = "1";
+
+            currentBet = {tai: 0, xiu: 0};
+            document.getElementById('bet-tai').innerText = "0";
+            document.getElementById('bet-xiu').innerText = "0";
+            document.querySelectorAll('.bet-zone').forEach(el => el.classList.remove('selected'));
+            selectedZone = null;
+            btnBet.disabled = false;
+
+            timeLeft = 60;
+            shakeLeft = 0;
+            openLeft = 12;
+            resultLeft = 0;
+            gameState = 'BETTING';
+            statusEl.innerText = "PHIÊN MỚI";
+            statusEl.style.color = "#ffd700";
+            timerEl.innerText = timeLeft;
+            saveState();
+        }
+
+        function toggleLine(diceNum) {
+            showDice[diceNum] = !showDice[diceNum];
+            document.getElementById(`tg-d${diceNum}`).classList.toggle('active');
+            drawDiceChart();
+            saveState();
+        }
+
+        function openChart() {
+            if (!requireLogin()) return;
+            togglePopup('chartOverlay', true);
+            if (historyData.length > 0) {
+                let last = historyData[historyData.length - 1];
+                document.getElementById('sessionInfoId').innerText = last.id;
+                document.getElementById('sessionInfoRes').innerText = `${last.side.toUpperCase()}(${last.dices[0]}-${last.dices[1]}-${last.dices[2]})`;
+            }
+            drawTotalChart();
+            drawDiceChart();
+        }
+
+        function drawGrid(ctx, canvas, stepsY) {
+            const padX = 20, padY = 20;
+            const stepX = (canvas.width - padX * 2) / 19;
+            const stepY = (canvas.height - padY * 2) / stepsY;
+
+            ctx.strokeStyle = "rgba(255,255,255,0.1)";
+            ctx.lineWidth = 1;
+            for(let i=0; i<20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(padX + i*stepX, padY);
+                ctx.lineTo(padX + i*stepX, canvas.height - padY);
+                ctx.stroke();
+            }
+            for(let i=0; i<=stepsY; i++) {
+                ctx.beginPath();
+                ctx.moveTo(padX, padY + i*stepY);
+                ctx.lineTo(canvas.width - padX, padY + i*stepY);
+                ctx.stroke();
+            }
+            return { padX, padY, stepX, stepY };
+        }
+
+        function drawTotalChart() {
+            const cv = document.getElementById('totalCanvas'), ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            const { padX, padY, stepX, stepY } = drawGrid(ctx, cv, 15);
+
+            if (historyData.length === 0) return;
+
+            ctx.beginPath();
+            ctx.strokeStyle = "#fff";
+            ctx.lineWidth = 2;
+            ctx.lineJoin = "round";
+            historyData.forEach((data, i) => {
+                let x = padX + i * stepX;
+                let y = padY + (18 - data.total) * stepY;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            historyData.forEach((data, i) => {
+                let x = padX + i * stepX;
+                let y = padY + (18 - data.total) * stepY;
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = data.side === 'tai' ? '#ff4b2b' : '#00b4db';
+                ctx.fill();
+                ctx.strokeStyle = "#fff";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 10px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(data.total, x, y - 10);
+            });
+        }
+
+        function drawDiceChart() {
+            const cv = document.getElementById('diceCanvas'), ctx = cv.getContext('2d');
+            ctx.clearRect(0, 0, cv.width, cv.height);
+            const { padX, padY, stepX, stepY } = drawGrid(ctx, cv, 5);
+
+            if (historyData.length === 0) return;
+
+            const colors = { 1: '#ff0044', 2: '#b200ff', 3: '#ffcc00' };
+
+            function drawDieLine(dieIndex, color) {
+                if(!showDice[dieIndex+1]) return;
+                ctx.beginPath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.lineJoin = "round";
+                historyData.forEach((data, i) => {
+                    let val = data.dices[dieIndex];
+                    let x = padX + i * stepX;
+                    let y = padY + (6 - val) * stepY;
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+
+                historyData.forEach((data, i) => {
+                    let val = data.dices[dieIndex];
+                    let x = padX + i * stepX;
+                    let y = padY + (6 - val) * stepY;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 4, 0, Math.PI * 2);
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                });
+            }
+
+            drawDieLine(0, colors[1]);
+            drawDieLine(1, colors[2]);
+            drawDieLine(2, colors[3]);
+        }
+
+        window.addEventListener('beforeunload', saveState);
+        setInterval(saveState, 5000);
+
+        function forceAccountPopup() {
+            if (!currentUser || !accounts[currentUser]) {
+                betInputEl.disabled = true;
+                btnBet.disabled = true;
+                togglePopup('accountOverlay', true);
+            }
+        }
+
+        initDices();
+        loadState();
+        forceAccountPopup();
+
+        if (gameState === 'WAIT_OPEN') {
+            initDrag();
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            saveState();
+        });
+    </script>
+</body>
+</html>
