@@ -265,6 +265,16 @@
             updateUIFromState();
         });
 
+        socket.on('game:roundChanged', (data) => {
+            // Phiên mới bắt đầu - reset UI
+            resetRound();
+            selectedZone = null;
+            currentBet = { tai: 0, xiu: 0 };
+            currentSessionId = data.roundId;
+            timerEl.style.opacity = "1";
+            console.log(`Phiên mới bắt đầu: Round #${data.roundId}`);
+        });
+
         socket.on('user:profile', (profile) => {
             if (profile) {
                 currentUser = profile.username;
@@ -283,6 +293,14 @@
 
         function updateCurrentUserLabel() {
             currentUserText.innerText = currentUser ? currentUser : 'chưa đăng nhập';
+            // Cập nhật trạng thái button khi user thay đổi
+            if (currentUser && gameState === 'BETTING') {
+                btnBet.disabled = false;
+                betInputEl.disabled = false;
+            } else if (!currentUser) {
+                btnBet.disabled = true;
+                betInputEl.disabled = true;
+            }
         }
 
         function updateUIFromState() {
@@ -308,12 +326,17 @@
                 if (z) z.classList.add('selected');
             }
 
+            // Cập nhật trạng thái nút cược
+            if (gameState === 'BETTING' && currentUser) {
+                btnBet.disabled = false;
+            } else {
+                btnBet.disabled = true;
+            }
+
             if (gameState === 'SHAKING') {
                 bowlEl.classList.add('shaking');
-                btnBet.disabled = true;
             } else {
                 bowlEl.classList.remove('shaking');
-                btnBet.disabled = (gameState !== 'BETTING');
             }
 
             if (gameState === 'WAIT_OPEN' || gameState === 'RESULT') {
@@ -359,10 +382,10 @@
                 }
                 document.getElementById('accUser').value = '';
                 document.getElementById('accPass').value = '';
-                betInputEl.disabled = false;
-                btnBet.disabled = false;
                 togglePopup('accountOverlay', false);
                 showToast(`Đã tạo và đăng nhập: ${user}`, "success");
+                // Cập nhật UI sau đăng ký
+                updateUIFromState();
             });
         }
 
@@ -378,10 +401,10 @@
                 }
                 document.getElementById('accUser').value = '';
                 document.getElementById('accPass').value = '';
-                betInputEl.disabled = false;
-                btnBet.disabled = false;
                 togglePopup('accountOverlay', false);
                 showToast(`Đã đăng nhập: ${user}`, "success");
+                // Cập nhật UI sau đăng nhập
+                updateUIFromState();
             });
         }
 
@@ -478,6 +501,7 @@
             if (gameState !== 'BETTING') return showToast("Đã hết thời gian cược!", "error");
             if (!selectedZone) return showToast("Vui lòng chọn cửa Tài hoặc Xỉu!", "error");
             if (isNaN(val) || val <= 0) return showToast("Số tiền cược không hợp lệ!", "error");
+            if (val > balance) return showToast("Số dư không đủ để cược!", "error");
 
             socket.emit('bet:place', { side: selectedZone, amount: val }, (res) => {
                 if (!res.ok) {
@@ -594,7 +618,13 @@
             document.getElementById('bet-xiu').innerText = "0";
             document.querySelectorAll('.bet-zone').forEach(el => el.classList.remove('selected'));
             selectedZone = null;
-            btnBet.disabled = false;
+            document.getElementById('betInput').value = '';
+            
+            if (gameState === 'BETTING' && currentUser) {
+                btnBet.disabled = false;
+            } else {
+                btnBet.disabled = true;
+            }
 
             bowlEl.style.transition = "none";
             bowlEl.style.transform = "translate(0,0)";
