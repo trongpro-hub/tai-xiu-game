@@ -12,9 +12,6 @@ let historyData = [];
 let currentSessionId = 5409491;
 let currentResult = { id: currentSessionId, total: 0, side: '', dices: [1, 1, 1] };
 let showDice = { 1: true, 2: true, 3: true };
-let onlineUsers = [];
-
-let feedItems = ['🔥 Chào mừng đến với Tài Xỉu Vip Pro - Chúc các bạn chơi game vui vẻ! 🔥'];
 
 const timerEl = document.getElementById('timerDisplay');
 const statusEl = document.getElementById('statusText');
@@ -23,38 +20,22 @@ const balanceEl = document.getElementById('balanceDisplay');
 const btnBet = document.getElementById('btnBet');
 const betInputEl = document.getElementById('betInput');
 const currentUserText = document.getElementById('currentUserText');
-const liveFeedText = document.getElementById('liveFeedText');
 
-function renderFeed() {
-  liveFeedText.innerText = feedItems.join(' • ');
-}
-
-function pushFeed(text) {
-  feedItems.push(text);
-  if (feedItems.length > 20) feedItems.shift();
-  renderFeed();
-}
-
-function showToast(msg, type = 'info') {
+function showToast(msg, type = "info") {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML =
-    type === 'success' ? `✅ ${msg}` :
-    type === 'error' ? `❌ ${msg}` :
-    `🔔 ${msg}`;
+  toast.innerHTML = type === 'success' ? `✅ ${msg}` : type === 'error' ? `❌ ${msg}` : `🔔 ${msg}`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 3000);
 }
 
 function togglePopup(id, show) {
   document.getElementById(id).style.display = show ? 'flex' : 'none';
-
   if (id === 'withdrawOverlay' && show) {
     const avail = document.getElementById('availBalance');
     if (avail) avail.innerText = balance.toLocaleString() + ' VNĐ';
   }
-
   if (id === 'accountOverlay' && show) {
     updateCurrentUserLabel();
   }
@@ -72,7 +53,7 @@ function updateBalance() {
 
 function requireLogin() {
   if (currentUser) return true;
-  showToast('Bạn phải tạo tài khoản rồi mới được chơi!', 'error');
+  showToast("Bạn phải tạo tài khoản rồi mới được chơi!", "error");
   openAccountRequired();
   return false;
 }
@@ -83,20 +64,11 @@ function openAccountRequired() {
   btnBet.disabled = true;
 }
 
-function unbindDrag() {
-  bowlEl.onmousedown = null;
-  bowlEl.ontouchstart = null;
-  window.onmousemove = null;
-  window.onmouseup = null;
-  window.ontouchmove = null;
-  window.ontouchend = null;
-}
-
 function updateUIFromState() {
   updateBalance();
   updateCurrentUserLabel();
 
-  timerEl.innerText = (gameState === 'BETTING' || gameState === 'WAIT_OPEN') ? timeLeft : '';
+  timerEl.innerText = gameState === 'BETTING' || gameState === 'WAIT_OPEN' ? timeLeft : '';
 
   statusEl.innerText =
     gameState === 'BETTING' ? 'PHIÊN MỚI' :
@@ -124,27 +96,20 @@ function updateUIFromState() {
     bowlEl.classList.remove('shaking');
   }
 
-  if (gameState === 'WAIT_OPEN') {
-    bowlEl.style.opacity = '1';
-    bowlEl.style.transition = 'none';
-    renderDice('d1', currentResult.dices?.[0] || 1);
-    renderDice('d2', currentResult.dices?.[1] || 1);
-    renderDice('d3', currentResult.dices?.[2] || 1);
-    initDrag();
-  } else {
-    unbindDrag();
-  }
-
-  bowlEl.style.opacity = gameState === 'RESULT' ? '0' : '1';
   btnBet.disabled = !currentUser || gameState !== 'BETTING';
   betInputEl.disabled = !currentUser || gameState !== 'BETTING';
 
-  if (gameState === 'RESULT') {
-    renderDice('d1', currentResult.dices?.[0] || 1);
-    renderDice('d2', currentResult.dices?.[1] || 1);
-    renderDice('d3', currentResult.dices?.[2] || 1);
+  if (gameState === 'WAIT_OPEN' || gameState === 'RESULT') {
+    const d1 = currentResult?.dices?.[0] || 1;
+    const d2 = currentResult?.dices?.[1] || 1;
+    const d3 = currentResult?.dices?.[2] || 1;
+    renderDice('d1', d1);
+    renderDice('d2', d2);
+    renderDice('d3', d3);
+    initDrag();
   }
 
+  bowlEl.style.opacity = gameState === 'RESULT' ? '0' : '1';
   drawTotalChart();
   drawDiceChart();
 }
@@ -152,12 +117,10 @@ function updateUIFromState() {
 function registerAccount() {
   const user = document.getElementById('accUser').value.trim();
   const pass = document.getElementById('accPass').value.trim();
-
-  if (!user || !pass) return showToast('Vui lòng nhập đủ tài khoản và mật khẩu!', 'error');
+  if (!user || !pass) return showToast("Vui lòng nhập đủ tài khoản và mật khẩu!", "error");
 
   socket.emit('auth:register', { username: user, password: pass }, (res) => {
     if (!res || !res.ok) return showToast(res?.error || 'Không tạo được tài khoản!', 'error');
-
     document.getElementById('accUser').value = '';
     document.getElementById('accPass').value = '';
     togglePopup('accountOverlay', false);
@@ -168,12 +131,10 @@ function registerAccount() {
 function loginAccount() {
   const user = document.getElementById('accUser').value.trim();
   const pass = document.getElementById('accPass').value.trim();
-
-  if (!user || !pass) return showToast('Vui lòng nhập đủ tài khoản và mật khẩu!', 'error');
+  if (!user || !pass) return showToast("Vui lòng nhập đủ tài khoản và mật khẩu!", "error");
 
   socket.emit('auth:login', { username: user, password: pass }, (res) => {
     if (!res || !res.ok) return showToast(res?.error || 'Sai tài khoản hoặc mật khẩu!', 'error');
-
     document.getElementById('accUser').value = '';
     document.getElementById('accPass').value = '';
     togglePopup('accountOverlay', false);
@@ -184,33 +145,33 @@ function loginAccount() {
 function logoutAccount() {
   socket.emit('auth:logout', {}, (res) => {
     if (!res || !res.ok) return;
-    showToast('Đã đăng xuất!', 'success');
+    showToast("Đã đăng xuất!", "success");
   });
 }
 
 function redeemCode() {
   if (!requireLogin()) return;
   const code = document.getElementById('codeInput').value.trim().toUpperCase();
-  if (!code) return showToast('Vui lòng nhập mã!', 'error');
+  if (!code) return showToast("Vui lòng nhập mã!", "error");
 
   socket.emit('code:redeem', { code }, (res) => {
-    if (!res || !res.ok) return showToast(res?.error || 'Mã Giftcode không hợp lệ!', 'error');
+    if (!res || !res.ok) return showToast(res?.error || 'Mã Giftcode không hợp lệ!', "error");
     document.getElementById('codeInput').value = '';
     togglePopup('codeOverlay', false);
-    showToast(`Nhận thành công ${Number(res.amount).toLocaleString()} VNĐ!`, 'success');
+    showToast(`Nhận thành công ${Number(res.amount).toLocaleString()} VNĐ!`, "success");
   });
 }
 
 function withdrawMoney() {
   if (!requireLogin()) return;
   const amt = parseInt(document.getElementById('withdrawInput').value, 10);
-  if (isNaN(amt) || amt <= 0) return showToast('Số tiền không hợp lệ!', 'error');
+  if (isNaN(amt) || amt <= 0) return showToast("Số tiền không hợp lệ!", "error");
 
   socket.emit('wallet:withdraw', { amount: amt }, (res) => {
     if (!res || !res.ok) return showToast(res?.error || 'Không rút được!', 'error');
     document.getElementById('withdrawInput').value = '';
     togglePopup('withdrawOverlay', false);
-    showToast(`Đã tạo lệnh rút ${Number(res.amount).toLocaleString()} VNĐ thành công!`, 'success');
+    showToast(`Đã tạo lệnh rút ${Number(res.amount).toLocaleString()} VNĐ thành công!`, "success");
   });
 }
 
@@ -225,7 +186,7 @@ function selectZone(z) {
 function allIn() {
   if (!requireLogin()) return;
   if (gameState === 'BETTING' && balance > 0) {
-    betInputEl.value = balance;
+    document.getElementById('betInput').value = balance;
   }
 }
 
@@ -233,14 +194,14 @@ function placeBet() {
   if (!requireLogin()) return;
   const val = parseInt(document.getElementById('betInput').value, 10);
 
-  if (gameState !== 'BETTING') return showToast('Đã hết thời gian cược!', 'error');
-  if (!selectedZone) return showToast('Vui lòng chọn cửa Tài hoặc Xỉu!', 'error');
-  if (isNaN(val) || val <= 0) return showToast('Số tiền cược không hợp lệ!', 'error');
+  if (gameState !== 'BETTING') return showToast("Đã hết thời gian cược!", "error");
+  if (!selectedZone) return showToast("Vui lòng chọn cửa Tài hoặc Xỉu!", "error");
+  if (isNaN(val) || val <= 0) return showToast("Số tiền cược không hợp lệ!", "error");
 
   socket.emit('bet:place', { side: selectedZone, amount: val }, (res) => {
-    if (!res || !res.ok) return showToast(res?.error || 'Không đặt cược được!', 'error');
-    betInputEl.value = '';
-    showToast(`Đã cược ${Number(val).toLocaleString()} vào ${selectedZone.toUpperCase()}`, 'success');
+    if (!res || !res.ok) return showToast(res?.error || 'Không đặt cược được!', "error");
+    document.getElementById('betInput').value = '';
+    showToast(`Đã cược ${Number(val).toLocaleString()} vào ${selectedZone.toUpperCase()}`, "success");
   });
 }
 
@@ -280,6 +241,13 @@ let currentX = 0;
 let currentY = 0;
 
 function initDrag() {
+  bowlEl.onmousedown = null;
+  bowlEl.ontouchstart = null;
+  window.onmousemove = null;
+  window.onmouseup = null;
+  window.ontouchmove = null;
+  window.ontouchend = null;
+
   const startDrag = (e) => {
     if (gameState !== 'WAIT_OPEN') return;
     isDragging = true;
@@ -287,7 +255,7 @@ function initDrag() {
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     startX = clientX - currentX;
     startY = clientY - currentY;
-    timerEl.style.opacity = '0';
+    timerEl.style.opacity = "0";
   };
 
   const drag = (e) => {
@@ -303,11 +271,11 @@ function initDrag() {
   const endDrag = () => {
     if (!isDragging) return;
     isDragging = false;
-    bowlEl.style.transition = '0.3s';
-    bowlEl.style.transform = 'translate(0px, 0px)';
+    bowlEl.style.transition = "0.3s";
+    bowlEl.style.transform = "translate(0px, 0px)";
     currentX = 0;
     currentY = 0;
-    timerEl.style.opacity = '1';
+    timerEl.style.opacity = "1";
   };
 
   bowlEl.onmousedown = startDrag;
@@ -342,7 +310,7 @@ function drawGrid(ctx, canvas, stepsY) {
   const stepX = (canvas.width - padX * 2) / 19;
   const stepY = (canvas.height - padY * 2) / stepsY;
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.strokeStyle = "rgba(255,255,255,0.1)";
   ctx.lineWidth = 1;
 
   for (let i = 0; i < 20; i++) {
@@ -371,9 +339,9 @@ function drawTotalChart() {
   if (historyData.length === 0) return;
 
   ctx.beginPath();
-  ctx.strokeStyle = '#fff';
+  ctx.strokeStyle = "#fff";
   ctx.lineWidth = 2;
-  ctx.lineJoin = 'round';
+  ctx.lineJoin = "round";
 
   historyData.forEach((data, i) => {
     const x = padX + i * stepX;
@@ -391,13 +359,13 @@ function drawTotalChart() {
     ctx.arc(x, y, 6, 0, Math.PI * 2);
     ctx.fillStyle = data.side === 'tai' ? '#ff4b2b' : '#00b4db';
     ctx.fill();
-    ctx.strokeStyle = '#fff';
+    ctx.strokeStyle = "#fff";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 10px Arial';
-    ctx.textAlign = 'center';
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 10px Arial";
+    ctx.textAlign = "center";
     ctx.fillText(data.total, x, y - 10);
   });
 }
@@ -418,7 +386,7 @@ function drawDiceChart() {
     ctx.beginPath();
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
+    ctx.lineJoin = "round";
 
     historyData.forEach((data, i) => {
       const val = data.dices[dieIndex];
@@ -475,23 +443,15 @@ socket.on('user:profile', (profile) => {
   btnBet.disabled = gameState !== 'BETTING';
 });
 
-socket.on('live:history', (items) => {
-  feedItems = Array.isArray(items) && items.length
-    ? items.map((x) => x.text)
-    : ['🔥 Chào mừng đến với Tài Xỉu Vip Pro - Chúc các bạn chơi game vui vẻ! 🔥'];
-  renderFeed();
-});
-
-socket.on('live:message', (item) => {
-  pushFeed(item?.text || String(item || ''));
-});
-
-socket.on('online:list', (list) => {
-  onlineUsers = Array.isArray(list) ? list : [];
-});
+setInterval(() => {
+  const fakeNames = ["ẩn danh", "VuaTàiXỉu", "PhapSu", "Huy99", "LinhChi", "ThanhNien", "DaiGia"];
+  const name = fakeNames[Math.floor(Math.random() * fakeNames.length)];
+  const amt = (Math.floor(Math.random() * 50) + 1) * 10000;
+  const side = Math.random() > 0.5 ? "Tài" : "Xỉu";
+  document.getElementById('liveFeedText').innerText += ` • Người chơi ${name} vừa cược ${amt.toLocaleString()}đ vào ${side}`;
+}, 3000);
 
 initDices();
-renderFeed();
 openAccountRequired();
 updateCurrentUserLabel();
 updateBalance();
