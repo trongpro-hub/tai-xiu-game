@@ -153,6 +153,8 @@ function startNextRound() {
   game.timeLeft = BETTING_SECONDS;
   game.currentResult = null;
   game.currentBets = { tai: 0, xiu: 0 };
+  // Gửi signal cho client reset state
+  io.emit('game:roundChanged', { roundId: game.roundId });
 }
 
 function tick() {
@@ -199,7 +201,9 @@ io.on('connection', (socket) => {
       password = String(password || '').trim();
 
       if (!username || !password) return cb({ ok: false, error: 'Vui lòng nhập đủ tài khoản và mật khẩu!' });
-      if (users[username]) return cb({ ok: false, error: 'Tài khoản đã tồn tại!' });
+      
+      // Kiểm tra username duy nhất
+      if (users[username]) return cb({ ok: false, error: 'Tên tài khoản này đã được sử dụng! Vui lòng chọn tên khác.' });
 
       users[username] = {
         passHash: hashPass(password),
