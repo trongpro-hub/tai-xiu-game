@@ -340,6 +340,13 @@
         let currentResult = { id: currentSessionId, total: 0, side: '', dices: [1,1,1] };
         let showDice = { 1: true, 2: true, 3: true };
         let totalBets = { tai: 0, xiu: 0, taiPlayers: 0, xiuPlayers: 0 };
+        
+        const savedBet = localStorage.getItem('TX_VIP_CURRENT_BET');
+        if (savedBet) {
+            try {
+                currentBet = JSON.parse(savedBet);
+            } catch(e) {}
+        }
 
         const timerEl = document.getElementById('timerDisplay');
         const statusEl = document.getElementById('statusText');
@@ -387,15 +394,20 @@
                 currentUser = profile.username;
                 balance = profile.balance || 0;
                 usedCodes = profile.usedCodes || [];
+                currentBet = profile.currentBet || { tai: 0, xiu: 0 };
                 localStorage.setItem(CURRENT_USER_KEY, currentUser);
+                localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
             } else {
                 currentUser = '';
                 balance = 0;
                 usedCodes = [];
+                currentBet = { tai: 0, xiu: 0 };
                 localStorage.removeItem(CURRENT_USER_KEY);
+                localStorage.removeItem('TX_VIP_CURRENT_BET');
             }
             updateCurrentUserLabel();
             updateBalance();
+            updateUIFromState();
         });
 
         function updateCurrentUserLabel() {
@@ -621,9 +633,14 @@
                 if (!res.ok) {
                     return showToast(res.error || "Đặt cược thất bại!", "error");
                 }
+                balance -= val;
                 currentBet[selectedZone] += val;
+                localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
+                updateBalance();
                 showToast(`Đã cược ${val.toLocaleString()} vào ${selectedZone.toUpperCase()}`, "success");
                 document.getElementById('betInput').value = '';
+                document.getElementById('bet-tai').innerText = (currentBet.tai || 0).toLocaleString();
+                document.getElementById('bet-xiu').innerText = (currentBet.xiu || 0).toLocaleString();
             });
         }
 
@@ -728,6 +745,7 @@
 
         function resetRound() {
             currentBet = {tai: 0, xiu: 0};
+            localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
             document.getElementById('bet-tai').innerText = "0";
             document.getElementById('bet-xiu').innerText = "0";
             document.querySelectorAll('.bet-zone').forEach(el => el.classList.remove('selected'));
@@ -876,6 +894,11 @@
         initDices();
         forceAccountPopup();
         updateStatsPanel();
+        
+        if (currentBet.tai > 0 || currentBet.xiu > 0) {
+            document.getElementById('bet-tai').innerText = (currentBet.tai || 0).toLocaleString();
+            document.getElementById('bet-xiu').innerText = (currentBet.xiu || 0).toLocaleString();
+        }
 
         if (gameState === 'WAIT_OPEN') {
             initDrag();
