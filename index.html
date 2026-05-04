@@ -94,6 +94,47 @@
 
         .auth-hint { margin-bottom: 12px; color: #aaa; font-size: 13px; line-height: 1.4; }
         .auth-badge { color: #00ff88; font-weight: 700; }
+
+        @media (max-width: 768px) {
+            body {
+                min-height: 100vh;
+                padding: 10px 0;
+            }
+            .live-feed { font-size: 11px; }
+            .btn-round { width: 44px; height: 44px; font-size: 18px; }
+            .header { top: 15px; }
+            .balance-box { padding: 8px 18px; }
+            .game-board {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                max-width: 100%;
+                height: auto;
+                padding: 15px;
+            }
+            .bet-zone {
+                width: 100%;
+                height: auto;
+                min-height: 130px;
+                margin-bottom: 15px;
+            }
+            .center-area {
+                width: 100%;
+                height: auto;
+                margin: 0 auto;
+            }
+            .plate { width: 220px; height: 220px; }
+            .bet-zone h2 { font-size: 42px; }
+            .timer-center { font-size: 48px; }
+            .controls { flex-direction: column; margin-top: 20px; }
+            .input-bet, .btn { width: calc(100% - 40px); max-width: 360px; }
+            .btn { min-width: unset; }
+            .chart-popup { width: 100%; max-width: 100%; }
+            .chart-layout { flex-direction: column; align-items: stretch; }
+            .chart-section { min-width: unset; }
+            .popup-box { padding: 20px; }
+        }
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
