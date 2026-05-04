@@ -98,41 +98,64 @@
         @media (max-width: 768px) {
             body {
                 min-height: 100vh;
-                padding: 10px 0;
+                padding: 0;
+                overflow-y: auto;
             }
             .live-feed { font-size: 11px; }
             .btn-round { width: 44px; height: 44px; font-size: 18px; }
-            .header { top: 15px; }
-            .balance-box { padding: 8px 18px; }
+            .header { top: 10px; }
+            .balance-box { padding: 6px 16px; font-size: 14px; }
+            .balance-text { font-size: 18px; }
             .game-board {
-                flex-direction: row;
-                flex-wrap: wrap;
+                flex-direction: column;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
                 width: 100%;
                 max-width: 100%;
-                min-height: auto;
-                padding: 10px;
-                gap: 10px;
+                height: auto;
+                margin-top: 60px;
+                padding: 15px 10px;
+                gap: 15px;
+                border-radius: 20px;
             }
             .bet-zone {
-                width: 28%;
-                min-width: 100px;
-                height: 170px;
+                width: 45%;
+                height: 140px;
                 margin-bottom: 0;
             }
-            .center-area {
-                width: 40%;
-                min-width: 170px;
-                height: 230px;
+            .bet-zone.tai {
+                align-self: flex-start;
+                margin-left: 10px;
             }
-            .plate { width: 170px; height: 170px; }
-            .bet-zone h2 { font-size: 36px; }
-            .bet-amount { font-size: 18px; padding: 6px 14px; }
-            .timer-center { font-size: 44px; }
-            .status-text { font-size: 20px; padding: 4px 18px; }
-            .controls { flex-direction: row; flex-wrap: wrap; margin-top: 20px; justify-content: center; }
-            .input-bet, .btn { width: calc(50% - 20px); max-width: 180px; }
+            .bet-zone.xiu {
+                align-self: flex-end;
+                margin-right: 10px;
+                margin-top: -120px;
+            }
+            .center-area {
+                width: 100%;
+                height: 260px;
+                position: relative;
+                z-index: 10;
+                order: -1;
+            }
+            .plate { width: 180px; height: 180px; }
+            .bowl { width: 160px; height: 160px; }
+            .bet-zone h2 { font-size: 32px; }
+            .bet-amount { font-size: 16px; padding: 4px 12px; }
+            .timer-center { font-size: 40px; }
+            .status-text { font-size: 18px; padding: 3px 16px; }
+            .controls { 
+                width: 100%;
+                flex-direction: column;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                padding: 0 15px;
+                gap: 10px;
+            }
+            .input-bet { width: 100%; max-width: 100%; }
+            .btn-allin { width: 100%; }
+            .btn-bet { width: 100%; }
             .btn { min-width: unset; }
             .chart-popup { width: 100%; max-width: 100%; }
             .chart-layout { flex-direction: column; align-items: stretch; }
