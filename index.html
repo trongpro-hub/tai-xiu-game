@@ -95,6 +95,13 @@
         .auth-hint { margin-bottom: 12px; color: #aaa; font-size: 13px; line-height: 1.4; }
         .auth-badge { color: #00ff88; font-weight: 700; }
 
+        .stats-panel { display: flex; justify-content: center; gap: 40px; width: 100%; max-width: 900px; margin-top: 20px; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-item { text-align: center; flex: 1; }
+        .stat-item.tai-stat { border-right: 1px solid rgba(255, 255, 255, 0.2); }
+        .stat-label { font-size: 14px; color: #aaa; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; letter-spacing: 1px; }
+        .stat-value { font-size: 22px; font-weight: 900; color: #ffd700; text-shadow: 0 2px 5px rgba(0,0,0,0.5); margin-bottom: 5px; }
+        .stat-players { font-size: 13px; color: #00ff88; font-weight: bold; }
+
         @media (max-width: 768px) {
             body {
                 min-height: 100vh;
@@ -106,6 +113,11 @@
             .header { top: 10px; }
             .balance-box { padding: 6px 16px; font-size: 14px; }
             .balance-text { font-size: 18px; }
+            .stats-panel { gap: 15px; margin-top: 70px; padding: 12px; font-size: 12px; }
+            .stat-item.tai-stat { border-right: none; border-bottom: 1px solid rgba(255, 255, 255, 0.2); padding-bottom: 10px; }
+            .stat-label { font-size: 12px; }
+            .stat-value { font-size: 18px; }
+            .stat-players { font-size: 11px; }
             .game-board {
                 flex-direction: column;
                 align-items: center;
@@ -247,6 +259,19 @@
         </div>
     </div>
 
+    <div class="stats-panel" id="statsPanel">
+        <div class="stat-item tai-stat">
+            <div class="stat-label">TÀI</div>
+            <div class="stat-value"><span id="taiTotal">0</span> VNĐ</div>
+            <div class="stat-players"><span id="taiPlayers">0</span> người</div>
+        </div>
+        <div class="stat-item xiu-stat">
+            <div class="stat-label">XỈU</div>
+            <div class="stat-value"><span id="xiuTotal">0</span> VNĐ</div>
+            <div class="stat-players"><span id="xiuPlayers">0</span> người</div>
+        </div>
+    </div>
+
     <div class="game-board">
         <div class="bet-zone tai" id="zone-tai" onclick="selectZone('tai')">
             <h2>TÀI</h2>
@@ -314,6 +339,7 @@
         let currentSessionId = 5409491;
         let currentResult = { id: currentSessionId, total: 0, side: '', dices: [1,1,1] };
         let showDice = { 1: true, 2: true, 3: true };
+        let totalBets = { tai: 0, xiu: 0, taiPlayers: 0, xiuPlayers: 0 };
 
         const timerEl = document.getElementById('timerDisplay');
         const statusEl = document.getElementById('statusText');
@@ -330,6 +356,10 @@
             currentSessionId = state.roundId || 5409491;
             currentResult = state.currentResult || { id: currentSessionId, total: 0, side: '', dices: [1,1,1] };
             historyData = state.history || [];
+            if (state.totalBets) {
+                totalBets = state.totalBets;
+                updateStatsPanel();
+            }
             updateUIFromState();
         });
 
@@ -340,7 +370,16 @@
             currentBet = { tai: 0, xiu: 0 };
             currentSessionId = data.roundId;
             timerEl.style.opacity = "1";
+            if (data.totalBets) {
+                totalBets = data.totalBets;
+                updateStatsPanel();
+            }
             console.log(`Phiên mới bắt đầu: Round #${data.roundId}`);
+        });
+
+        socket.on('game:betsUpdated', (bets) => {
+            totalBets = bets;
+            updateStatsPanel();
         });
 
         socket.on('user:profile', (profile) => {
@@ -491,6 +530,13 @@
             balanceEl.innerText = balance.toLocaleString();
             const avail = document.getElementById('availBalance');
             if (avail) avail.innerText = balance.toLocaleString() + ' VNĐ';
+        }
+
+        function updateStatsPanel() {
+            document.getElementById('taiTotal').innerText = (totalBets.tai || 0).toLocaleString();
+            document.getElementById('taiPlayers').innerText = totalBets.taiPlayers || 0;
+            document.getElementById('xiuTotal').innerText = (totalBets.xiu || 0).toLocaleString();
+            document.getElementById('xiuPlayers').innerText = totalBets.xiuPlayers || 0;
         }
 
         function showToast(msg, type = "info") {
@@ -829,6 +875,7 @@
 
         initDices();
         forceAccountPopup();
+        updateStatsPanel();
 
         if (gameState === 'WAIT_OPEN') {
             initDrag();
