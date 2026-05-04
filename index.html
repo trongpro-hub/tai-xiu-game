@@ -634,8 +634,16 @@
                     return showToast(res.error || "Đặt cược thất bại!", "error");
                 }
                 balance -= val;
+                const wasFirstBetThisSide = currentBet[selectedZone] === 0;
                 currentBet[selectedZone] += val;
                 localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
+                
+                // Cập nhật tổng tiền và số người đánh
+                totalBets[selectedZone] += val;
+                if (wasFirstBetThisSide) {
+                    totalBets[selectedZone + 'Players'] += 1;
+                }
+                updateStatsPanel();
                 updateBalance();
                 showToast(`Đã cược ${val.toLocaleString()} vào ${selectedZone.toUpperCase()}`, "success");
                 document.getElementById('betInput').value = '';
@@ -729,6 +737,8 @@
             let betAmt = currentBet[currentResult.side];
             if (betAmt > 0) {
                 let winAmt = betAmt * 1.98;
+                balance += winAmt;
+                updateBalance();
                 showToast(`Tuyệt vời! Bạn ăn ${winAmt.toLocaleString()} VNĐ`, "success");
                 let floating = document.createElement('div');
                 floating.className = 'floating-text';
