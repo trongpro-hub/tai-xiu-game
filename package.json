@@ -1,7 +1,7 @@
 {
-  "name": "tai-xiu-vip-pro",
+  "name": "khoiloan",
   "version": "1.0.0",
-  "description": "Tài Xỉu Vip Pro - Multiplayer Game",
+  "description": "khôi loan víp còn đao - Multiplayer Game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
