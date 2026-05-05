@@ -81,13 +81,34 @@ function newDiceResult(roundId) {
   return { id: roundId, total, side, dices };
 }
 
+function getRoundPlayerStats(roundId) {
+  let taiPlayers = 0;
+  let xiuPlayers = 0;
+
+  for (const username of Object.keys(users)) {
+    const bet = users[username].roundBets?.[roundId];
+    if (!bet) continue;
+    if (Number(bet.tai) > 0) taiPlayers += 1;
+    if (Number(bet.xiu) > 0) xiuPlayers += 1;
+  }
+
+  return { taiPlayers, xiuPlayers };
+}
+
 function publicState() {
+  const playerStats = getRoundPlayerStats(game.roundId);
   return {
     phase: game.phase,
     timeLeft: game.timeLeft,
     roundId: game.roundId,
     currentResult: game.currentResult,
     currentBets: game.currentBets,
+    totalBets: {
+      tai: game.currentBets.tai,
+      xiu: game.currentBets.xiu,
+      taiPlayers: playerStats.taiPlayers,
+      xiuPlayers: playerStats.xiuPlayers
+    },
     history: game.history
   };
 }
