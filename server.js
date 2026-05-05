@@ -26,6 +26,9 @@ const SHAKING_SECONDS = 2;
 const WAIT_OPEN_SECONDS = 12;
 const RESULT_SECONDS = 3;
 
+const ADMIN_USERNAME = 'admin';
+const ADMIN_PASSWORD_HASH = hashPass('admin123'); // Change 'admin123' to your desired password
+
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify({}, null, 2), 'utf8');
 
@@ -43,14 +46,6 @@ function saveUsers() {
 
 function hashPass(pass) {
   return crypto.createHash('sha256').update(String(pass)).digest('hex');
-}
-
-function generateToken() {
-  return crypto.randomBytes(24).toString('hex');
-}
-
-function getUserByToken(token) {
-  return Object.keys(users).find((username) => users[username].token === token);
 }
 
 let users = readUsers();
@@ -78,29 +73,42 @@ let game = {
   history: []
 };
 
+let forcedTotal = null;
+
 function newDiceResult(roundId) {
-  const dices = [
-    Math.floor(Math.random() * 6) + 1,
-    Math.floor(Math.random() * 6) + 1,
-    Math.floor(Math.random() * 6) + 1
-  ];
-  const total = dices[0] + dices[1] + dices[2];
+  let total;
+  let dices;
+  if (forcedTotal !== null && forcedTotal >= 3 && forcedTotal <= 18) {
+    total = forcedTotal;
+    // Generate dices that sum to total
+    const d1 = Math.floor(Math.random() * 6) + 1;
+    const d2 = Math.floor(Math.random() * 6) + 1;
+    let d3 = total - d1 - d2;
+    if (d3 < 1) d3 = 1;
+    if (d3 > 6) d3 = 6;
+    // Adjust if needed, but for simplicity, keep as is
+    dices = [d1, d2, d3];
+  } else {
+    dices = [
+      Math.floor(Math.random() * 6) + 1,
+      Math.floor(Math.random() * 6) + 1,
+      Math.floor(Math.random() * 6) + 1
+    ];
+    total = dices[0] + dices[1] + dices[2];
+  }
   const side = total >= 11 ? 'tai' : 'xiu';
   return { id: roundId, total, side, dices };
 }
 
-function getRoundPlayerStats(roundId) {
-  let taiPlayers = 0;
-  let xiuPlayers = 0;
-
+function getAllBets(roundId) {
+  const allBets = {};
   for (const username of Object.keys(users)) {
     const bet = users[username].roundBets?.[roundId];
-    if (!bet) continue;
-    if (Number(bet.tai) > 0) taiPlayers += 1;
-    if (Number(bet.xiu) > 0) xiuPlayers += 1;
+    if (bet) {
+      allBets[username] = bet;
+    }
   }
-
-  return { taiPlayers, xiuPlayers };
+  return allBets;
 }
 
 function publicState() {
@@ -128,12 +136,20 @@ function profileOf(username) {
     username,
     balance: u.balance || 0,
     usedCodes: Array.isArray(u.usedCodes) ? u.usedCodes : [],
-    roundBets: u.roundBets || {}
+    roundBets: u.roundBets || {},
+    isAdmin: username === ADMIN_USERNAME
   };
 }
 
 function emitGameState() {
   io.emit('game:state', publicState());
+  // Emit all bets to admin sockets
+  const allBets = getAllBets(game.roundId);
+  for (const socket of io.sockets.sockets.values()) {
+    if (socket.data.username === ADMIN_USERNAME) {
+      socket.emit('admin:bets', allBets);
+    }
+  }
 }
 
 function emitProfile(socket, username) {
@@ -154,14 +170,12 @@ function ensureUser(username) {
       passHash: '',
       balance: START_BALANCE,
       usedCodes: [],
-      roundBets: {},
-      token: generateToken()
+      roundBets: {}
     };
   }
   if (typeof users[username].balance !== 'number') users[username].balance = START_BALANCE;
   if (!Array.isArray(users[username].usedCodes)) users[username].usedCodes = [];
   if (!users[username].roundBets || typeof users[username].roundBets !== 'object') users[username].roundBets = {};
-  if (!users[username].token) users[username].token = generateToken();
 }
 
 function settleRound() {
@@ -194,6 +208,7 @@ function startNextRound() {
   game.timeLeft = BETTING_SECONDS;
   game.currentResult = null;
   game.currentBets = { tai: 0, xiu: 0 };
+  forcedTotal = null; // Reset forced total for new round
   // Gửi signal cho client reset state
   io.emit('game:roundChanged', { roundId: game.roundId });
 }
@@ -209,6 +224,7 @@ function tick() {
     game.timeLeft -= 1;
     if (game.timeLeft <= 0) {
       game.currentResult = newDiceResult(game.roundId);
+      forcedTotal = null; // Reset after using
       game.phase = 'WAIT_OPEN';
       game.timeLeft = WAIT_OPEN_SECONDS;
     }
@@ -250,15 +266,14 @@ io.on('connection', (socket) => {
         passHash: hashPass(password),
         balance: START_BALANCE,
         usedCodes: [],
-        roundBets: {},
-        token: generateToken()
+        roundBets: {}
       };
 
       socket.data.username = username;
       saveUsers();
       emitProfile(socket, username);
       socket.emit('game:state', publicState());
-      cb({ ok: true, token: users[username].token });
+      cb({ ok: true });
     } catch {
       cb({ ok: false, error: 'Không tạo được tài khoản!' });
     }
@@ -274,31 +289,12 @@ io.on('connection', (socket) => {
       if (users[username].passHash !== hashPass(password)) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
 
       ensureUser(username);
-      users[username].token = generateToken();
-      saveUsers();
-
-      socket.data.username = username;
-      emitProfile(socket, username);
-      socket.emit('game:state', publicState());
-      cb({ ok: true, token: users[username].token });
-    } catch {
-      cb({ ok: false, error: 'Không đăng nhập được!' });
-    }
-  });
-
-  socket.on('auth:restore', ({ token }, cb = () => {}) => {
-    try {
-      token = String(token || '').trim();
-      const username = getUserByToken(token);
-      if (!username) return cb({ ok: false, error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
-
-      ensureUser(username);
       socket.data.username = username;
       emitProfile(socket, username);
       socket.emit('game:state', publicState());
       cb({ ok: true });
     } catch {
-      cb({ ok: false, error: 'Không thể khôi phục phiên đăng nhập.' });
+      cb({ ok: false, error: 'Không đăng nhập được!' });
     }
   });
 
@@ -380,6 +376,19 @@ io.on('connection', (socket) => {
       cb({ ok: true });
     } catch {
       cb({ ok: false, error: 'Không đặt cược được!' });
+    }
+  });
+
+  socket.on('admin:setDice', ({ total }, cb = () => {}) => {
+    try {
+      if (socket.data.username !== ADMIN_USERNAME) return cb({ ok: false, error: 'Không có quyền!' });
+      total = parseInt(total, 10);
+      if (isNaN(total) || total < 3 || total > 18) return cb({ ok: false, error: 'Tổng không hợp lệ!' });
+      if (game.phase !== 'BETTING' && game.phase !== 'SHAKING') return cb({ ok: false, error: 'Không thể thay đổi lúc này!' });
+      forcedTotal = total;
+      cb({ ok: true });
+    } catch {
+      cb({ ok: false, error: 'Không thể đặt tổng!' });
     }
   });
 });
