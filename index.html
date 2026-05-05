@@ -437,10 +437,10 @@
                                 gameState === 'SHAKING' ? '' : displayTimeLeft;
             statusEl.innerText = gameState === 'BETTING' ? 'PHIÊN MỚI' :
                                  gameState === 'SHAKING' ? 'ĐANG LẮC' :
-                                 gameState === 'WAIT_OPEN' ? 'MỜI MỞ BÁT' :
+                                 gameState === 'WAIT_OPEN' ? (bowlOpened ? `${currentResult.side.toUpperCase()} - ${currentResult.total}` : 'MỜI MỞ BÁT') :
                                  gameState === 'RESULT' ? `${currentResult.side.toUpperCase()} - ${currentResult.total}` : 'PHIÊN MỚI';
 
-            statusEl.style.color = gameState === 'RESULT'
+            statusEl.style.color = (gameState === 'RESULT' || (gameState === 'WAIT_OPEN' && bowlOpened))
                 ? (currentResult.side === 'tai' ? '#ff4b2b' : '#00b4db')
                 : '#ffd700';
 
