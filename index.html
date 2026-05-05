@@ -328,6 +328,7 @@
         const CURRENT_USER_KEY = `${STORAGE_PREFIX}_current_user`;
 
         let currentUser = localStorage.getItem(CURRENT_USER_KEY) || '';
+        let currentProfile = null;
 
         let balance = 0;
         let usedCodes = [];
@@ -346,6 +347,12 @@
             try {
                 currentBet = JSON.parse(savedBet);
             } catch(e) {}
+        }
+
+        function syncCurrentBet() {
+            if (!currentProfile) return;
+            currentBet = currentProfile.roundBets[currentSessionId] || { tai: 0, xiu: 0 };
+            localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
         }
 
         const timerEl = document.getElementById('timerDisplay');
@@ -367,6 +374,7 @@
                 totalBets = state.totalBets;
                 updateStatsPanel();
             }
+            syncCurrentBet();
             updateUIFromState();
         });
 
@@ -390,13 +398,13 @@
         });
 
         socket.on('user:profile', (profile) => {
+            currentProfile = profile;
             if (profile) {
                 currentUser = profile.username;
                 balance = profile.balance || 0;
                 usedCodes = profile.usedCodes || [];
-                currentBet = profile.roundBets[currentSessionId] || { tai: 0, xiu: 0 };
+                syncCurrentBet();
                 localStorage.setItem(CURRENT_USER_KEY, currentUser);
-                localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
             } else {
                 currentUser = '';
                 balance = 0;
@@ -749,8 +757,6 @@
             let betAmt = currentBet[currentResult.side];
             if (betAmt > 0) {
                 let winAmt = betAmt * 1.98;
-                balance += winAmt;
-                updateBalance();
                 showToast(`Tuyệt vời! Bạn ăn ${winAmt.toLocaleString()} VNĐ`, "success");
                 let floating = document.createElement('div');
                 floating.className = 'floating-text';
