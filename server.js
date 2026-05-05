@@ -98,7 +98,8 @@ function profileOf(username) {
   return {
     username,
     balance: u.balance || 0,
-    usedCodes: Array.isArray(u.usedCodes) ? u.usedCodes : []
+    usedCodes: Array.isArray(u.usedCodes) ? u.usedCodes : [],
+    roundBets: u.roundBets || {}
   };
 }
 
