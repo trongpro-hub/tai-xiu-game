@@ -132,6 +132,14 @@ function emitProfile(socket, username) {
   socket.emit('user:profile', profileOf(username));
 }
 
+function broadcastProfiles() {
+  for (const socket of io.sockets.sockets.values()) {
+    if (socket.data.username) {
+      emitProfile(socket, socket.data.username);
+    }
+  }
+}
+
 function ensureUser(username) {
   if (!users[username]) {
     users[username] = {
@@ -167,6 +175,7 @@ function settleRound() {
   }
 
   saveUsers();
+  broadcastProfiles();
 }
 
 function startNextRound() {
