@@ -45,6 +45,14 @@ function hashPass(pass) {
   return crypto.createHash('sha256').update(String(pass)).digest('hex');
 }
 
+function generateToken() {
+  return crypto.randomBytes(24).toString('hex');
+}
+
+function getUserByToken(token) {
+  return Object.keys(users).find((username) => users[username].token === token);
+}
+
 let users = readUsers();
 
 /*
@@ -146,12 +154,14 @@ function ensureUser(username) {
       passHash: '',
       balance: START_BALANCE,
       usedCodes: [],
-      roundBets: {}
+      roundBets: {},
+      token: generateToken()
     };
   }
   if (typeof users[username].balance !== 'number') users[username].balance = START_BALANCE;
   if (!Array.isArray(users[username].usedCodes)) users[username].usedCodes = [];
   if (!users[username].roundBets || typeof users[username].roundBets !== 'object') users[username].roundBets = {};
+  if (!users[username].token) users[username].token = generateToken();
 }
 
 function settleRound() {
@@ -240,14 +250,15 @@ io.on('connection', (socket) => {
         passHash: hashPass(password),
         balance: START_BALANCE,
         usedCodes: [],
-        roundBets: {}
+        roundBets: {},
+        token: generateToken()
       };
 
       socket.data.username = username;
       saveUsers();
       emitProfile(socket, username);
       socket.emit('game:state', publicState());
-      cb({ ok: true });
+      cb({ ok: true, token: users[username].token });
     } catch {
       cb({ ok: false, error: 'Không tạo được tài khoản!' });
     }
@@ -263,12 +274,31 @@ io.on('connection', (socket) => {
       if (users[username].passHash !== hashPass(password)) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
 
       ensureUser(username);
+      users[username].token = generateToken();
+      saveUsers();
+
+      socket.data.username = username;
+      emitProfile(socket, username);
+      socket.emit('game:state', publicState());
+      cb({ ok: true, token: users[username].token });
+    } catch {
+      cb({ ok: false, error: 'Không đăng nhập được!' });
+    }
+  });
+
+  socket.on('auth:restore', ({ token }, cb = () => {}) => {
+    try {
+      token = String(token || '').trim();
+      const username = getUserByToken(token);
+      if (!username) return cb({ ok: false, error: 'Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.' });
+
+      ensureUser(username);
       socket.data.username = username;
       emitProfile(socket, username);
       socket.emit('game:state', publicState());
       cb({ ok: true });
     } catch {
-      cb({ ok: false, error: 'Không đăng nhập được!' });
+      cb({ ok: false, error: 'Không thể khôi phục phiên đăng nhập.' });
     }
   });
 
