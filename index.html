@@ -394,7 +394,7 @@
                 currentUser = profile.username;
                 balance = profile.balance || 0;
                 usedCodes = profile.usedCodes || [];
-                currentBet = profile.roundBets[game.roundId] || { tai: 0, xiu: 0 };
+                currentBet = profile.roundBets[currentSessionId] || { tai: 0, xiu: 0 };
                 localStorage.setItem(CURRENT_USER_KEY, currentUser);
                 localStorage.setItem('TX_VIP_CURRENT_BET', JSON.stringify(currentBet));
             } else {
