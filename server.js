@@ -100,6 +100,20 @@ function newDiceResult(roundId) {
   return { id: roundId, total, side, dices };
 }
 
+function getRoundPlayerStats(roundId) {
+  let taiPlayers = 0;
+  let xiuPlayers = 0;
+
+  for (const username of Object.keys(users)) {
+    const bet = users[username].roundBets?.[roundId];
+    if (!bet) continue;
+    if (Number(bet.tai) > 0) taiPlayers += 1;
+    if (Number(bet.xiu) > 0) xiuPlayers += 1;
+  }
+
+  return { taiPlayers, xiuPlayers };
+}
+
 function getAllBets(roundId) {
   const allBets = {};
   for (const username of Object.keys(users)) {
@@ -259,6 +273,8 @@ io.on('connection', (socket) => {
 
       if (!username || !password) return cb({ ok: false, error: 'Vui lòng nhập đủ tài khoản và mật khẩu!' });
       
+      if (username === ADMIN_USERNAME) return cb({ ok: false, error: 'Tên tài khoản này không được phép!' });
+      
       // Kiểm tra username duy nhất
       if (users[username]) return cb({ ok: false, error: 'Tên tài khoản này đã được sử dụng! Vui lòng chọn tên khác.' });
 
@@ -285,8 +301,12 @@ io.on('connection', (socket) => {
       password = String(password || '').trim();
 
       if (!username || !password) return cb({ ok: false, error: 'Vui lòng nhập đủ tài khoản và mật khẩu!' });
-      if (!users[username]) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
-      if (users[username].passHash !== hashPass(password)) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
+      if (username === ADMIN_USERNAME) {
+        if (hashPass(password) !== ADMIN_PASSWORD_HASH) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
+      } else {
+        if (!users[username]) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
+        if (users[username].passHash !== hashPass(password)) return cb({ ok: false, error: 'Sai tài khoản hoặc mật khẩu!' });
+      }
 
       ensureUser(username);
       socket.data.username = username;
