@@ -666,10 +666,14 @@
         function initDices() { renderDice('d1', 1); renderDice('d2', 2); renderDice('d3', 3); }
 
         let isDragging = false, startX, startY, currentX = 0, currentY = 0;
+        let bowlOpened = false;
         function initDrag() {
             currentX = 0;
             currentY = 0;
+            bowlOpened = false;
             bowlEl.style.transition = "none";
+            bowlEl.style.pointerEvents = "auto";
+            bowlEl.style.display = "block";
 
             const startDrag = (e) => {
                 if(gameState !== 'WAIT_OPEN') return;
@@ -719,13 +723,21 @@
         }
 
         function openBowl(isAuto = false) {
-            if (gameState !== 'WAIT_OPEN') return;
+            if (gameState !== 'WAIT_OPEN' || bowlOpened) return;
+            bowlOpened = true;
 
-            bowlEl.style.transition = "transform 0.6s ease-out, opacity 0.5s";
-            bowlEl.style.transform = `translate(${currentX * 3}px, ${currentY * 3}px) scale(0.8)`;
+            bowlEl.style.transition = "transform 0.8s ease-out, opacity 0.5s";
+            const exitY = -window.innerHeight - 200;
+            const exitX = currentX * 4;
+            bowlEl.style.transform = `translate(${exitX}px, ${exitY}px) scale(0.8)`;
             bowlEl.style.opacity = "0";
+            bowlEl.style.pointerEvents = "none";
             bowlEl.onmousedown = null;
             bowlEl.ontouchstart = null;
+            window.onmousemove = null;
+            window.onmouseup = null;
+            window.ontouchmove = null;
+            window.ontouchend = null;
 
             statusEl.innerText = `${currentResult.side.toUpperCase()} - ${currentResult.total}`;
             statusEl.style.color = currentResult.side === 'tai' ? '#ff4b2b' : '#00b4db';
@@ -768,7 +780,10 @@
                 btnBet.disabled = true;
             }
 
+            bowlOpened = false;
             bowlEl.style.transition = "none";
+            bowlEl.style.pointerEvents = "auto";
+            bowlEl.style.display = "block";
             bowlEl.style.transform = "translate(0,0)";
             bowlEl.style.opacity = "1";
             timerEl.style.opacity = "1";
